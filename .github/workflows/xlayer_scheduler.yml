@@ -270,37 +270,6 @@ jobs:
           else
             echo "❌ **Some unit tests failed**" >> $GITHUB_STEP_SUMMARY
           fi
-  unit-tests-short:
-    needs: [build-dependencies]
-    name: Unit Tests (Short)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: true
-
-      - name: Run short unit tests (excluding E2E)
-        run: |
-          # Exclude test/e2e directory and run with -short flag
-          # Use same build tags as 'make test': ckzg for KZG crypto support
-          go test -tags=ckzg -short -timeout=20m $(go list ./... | grep -v '/test/e2e')
-      - name: Generate test summary
-        if: always()
-        run: |
-          echo "## ⚡ Unit Tests (Short)" >> $GITHUB_STEP_SUMMARY
-          if [ $? -eq 0 ]; then
-            echo "✅ **All short tests passed**" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ **Some short tests failed**" >> $GITHUB_STEP_SUMMARY
-          fi
   xlayer-tests:
     needs: [build-dependencies]
     name: X Layer Specific Tests
@@ -425,7 +394,7 @@ jobs:
 
   report-status:
     name: Report Status to Lark/Feishu
-    needs: [sync-upstream, build-dependencies, lint-go, unit-tests, unit-tests-short, xlayer-tests]
+    needs: [sync-upstream, build-dependencies, lint-go, unit-tests, xlayer-tests]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -444,5 +413,4 @@ jobs:
           echo "| Build | ${{ needs.build-dependencies.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Linting | ${{ needs.lint-go.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Unit Tests (Full) | ${{ needs.unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Unit Tests (Short) | ${{ needs.unit-tests-short.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| X Layer Tests | ${{ needs.xlayer-tests.result }} |" >> $GITHUB_STEP_SUMMARY
