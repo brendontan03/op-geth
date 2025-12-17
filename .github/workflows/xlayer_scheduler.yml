@@ -2,8 +2,6 @@ name: X Layer Op-Geth Scheduled CI
 
 # Schedule: Daily at 2:00 PM Beijing Time (UTC+8)
 on:
-  schedule:
-    - cron: '0 6 * * *'   # 14:00 Beijing Time (UTC+8 = 06:00 UTC)
   workflow_dispatch:      # Allow manual trigger
 
 # Ensure only one workflow runs at a time
